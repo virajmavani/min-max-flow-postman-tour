@@ -1,5 +1,5 @@
 // Starter code for max flow
-package idsa;
+package vdm180000;
 import idsa.Graph.*;
 import java.util.HashMap;
 import java.util.Set;

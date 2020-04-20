@@ -1,5 +1,5 @@
 // Driver code for max flow
-package idsa;
+package vdm180000;
 import idsa.Graph;
 import idsa.Graph.Edge;
 import idsa.Graph.Vertex;
