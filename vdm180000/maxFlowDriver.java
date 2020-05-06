@@ -1,8 +1,10 @@
 // Driver code for max flow
 package vdm180000;
-import idsa.Graph;
-import idsa.Graph.Edge;
-import idsa.Graph.Vertex;
+
+import vdm180000.Graph;
+import vdm180000.Graph.Edge;
+import vdm180000.Graph.Timer;
+import vdm180000.Graph.Vertex;
 import java.util.HashMap;
 
 
@@ -26,7 +28,7 @@ public class maxFlowDriver {
 	    arr[i] = cap;
 	}
 	for(Vertex u: g) {
-	    for(Edge e: u) {
+	    for(Edge e: g.adj(u).outEdges) {
 		capacity.put(e, arr[e.getName()]);
 	    }
 	}
