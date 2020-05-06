@@ -59,39 +59,36 @@ public class Flow {
     }
 
 
-    // Return max flow found. Use either relabel to front or FIFO.
     public int preflowPush() {
-	    relabelToFront();
+	    relabelFront();
         return excessFlow[sink.getIndex()];
     }
 
-    private void relabelToFront() {
-        //Initializing graph for max flow
+    private void relabelFront() {
         initialize();
 
-        Iterator<Vertex> itr;
-        boolean iscomplete = false;
+        Iterator<Vertex> vertex_itr;
+        boolean finished = false;
 
-        while(!iscomplete) {
-            iscomplete = true;
+        while(!finished) {
+            finished = true;
 
-            //Creating the iterator
-            itr = listVertex.iterator();
-            while(itr.hasNext()) {
-                Vertex current = itr.next();
+            vertex_itr = listVertex.iterator();
+            while(vertex_itr.hasNext()) {
+                Vertex curr = vertex_itr.next();
 
                 //checking if the excess flow is 0 or not
                 //if not make it 0 by increasing the height of adjacent vertex and push the
                 //excess flow
-                if(excessFlow[current.getIndex()] == 0)
+                if(excessFlow[curr.getIndex()] == 0)
                     continue;
 
-                int oldHeight = height[current.getIndex()];
-                discharge(current);
-                if(oldHeight != height[current.getIndex()]) {
-                    iscomplete = false;
-                    itr.remove();
-                    listVertex.add(0, current);
+                int oldHeight = height[curr.getIndex()];
+                discharge(curr);
+                if(oldHeight != height[curr.getIndex()]) {
+                    finished = false;
+                    vertex_itr.remove();
+                    listVertex.add(0, curr);
                     break;
                 }
             }
@@ -101,30 +98,26 @@ public class Flow {
 
     private void discharge(Vertex u) {
         while(excessFlow[u.getIndex()] > 0) {
-
-            // In residual graph looking at forward edges
-            for(Edge e : g.adj(u).outEdges) {
-                Vertex otherV = e.otherEnd(u);
-                if(ResidualGraphForFlow(e, u) && height[otherV.getIndex()]+1 == height[u.getIndex()]) {
-                    push(e,u,otherV);
-                    if(excessFlow[u.getIndex()] == 0)
+            for( Edge e : g.adj(u).outEdges ) {
+                Vertex v = e.otherEnd(u);
+                if( ResidualGraphForFlow(e, u) && height[v.getIndex()] + 1 == height[u.getIndex()] ) {
+                    push(e, u, v);
+                    if(excessFlow[u.getIndex()] == 0) {
                         return;
-                }//remove if excess flow from if doesnt work
-
-            }
-
-            // In residual graph look for reverse edges
-            for(Edge e : g.adj(u).inEdges) {
-                Vertex otherV = e.fromVertex();
-                if(ResidualGraphForFlow(e,u) && height[otherV.getIndex()]+1 == height[u.getIndex()]) {
-                    push(e,u,otherV);
-                    if(excessFlow[u.getIndex()] == 0)
-                        return;
+                    }
                 }
-
             }
 
-            //Call Relabel if cannot push more flow
+            for( Edge e : g.adj(u).inEdges ) {
+                Vertex v = e.fromVertex();
+                if(ResidualGraphForFlow(e,u) && height[v.getIndex()]+1 == height[u.getIndex()]) {
+                    push(e, u, v);
+                    if(excessFlow[u.getIndex()] == 0) {
+                        return;
+                    }
+                }
+            }
+
             relabel(u);
         }
     }
@@ -132,28 +125,27 @@ public class Flow {
 
     private void relabel(Vertex u) {
         int minHeight = 3*g.n;
-        //Checking heights of adjacent vertex and increase it to maxheight +1
-        //so that excess flow can be sens through the vertex
-        for(Edge e: g.adj(u).outEdges) {
+        
+        for( Edge e: g.adj(u).outEdges ) {
             int mheight = height[e.toVertex().getIndex()];
-            if(ResidualGraphForFlow(e,u) && mheight < minHeight){
+            if ( ResidualGraphForFlow(e, u) && mheight < minHeight ) {
                 minHeight = mheight;
             }
         }
 
-
-        for(Edge e: g.adj(u).inEdges) {
+        for( Edge e : g.adj(u).inEdges ) {
             int mheight = height[e.fromVertex().getIndex()];
-            if(ResidualGraphForFlow(e,u) && mheight < minHeight) {
+            if ( ResidualGraphForFlow(e, u) && mheight < minHeight ) {
                 minHeight = mheight;
             }
         }
+        
         height[u.getIndex()] = minHeight+1;
     }
 
 
     private boolean ResidualGraphForFlow(Edge e, Vertex u) {
-        if(e.fromVertex().equals(u)) {
+        if( e.fromVertex().equals(u) ) {
             return flow(e) < capacity(e);
         }
         return flow(e) > 0;
@@ -162,7 +154,7 @@ public class Flow {
 
     private void push(Edge e, Vertex u, Vertex v) {
         int flowDelta = 0;
-        if(e.fromVertex().equals(u)) {
+        if ( e.fromVertex().equals(u) ) {
             flowDelta = Math.min((capacity(e) - flow(e)), excessFlow[u.getIndex()]);
             maxflow.put(e, flow(e) + flowDelta);
         }
