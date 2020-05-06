@@ -77,9 +77,6 @@ public class Flow {
             while(vertex_itr.hasNext()) {
                 Vertex curr = vertex_itr.next();
 
-                //checking if the excess flow is 0 or not
-                //if not make it 0 by increasing the height of adjacent vertex and push the
-                //excess flow
                 if(excessFlow[curr.getIndex()] == 0)
                     continue;
 
