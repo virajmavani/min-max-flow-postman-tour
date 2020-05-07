@@ -73,15 +73,19 @@ public class Flow {
     }
 
     /**
-     * Implementation of preflowPush algorithm for computing max-flow possible in a graph
-     * @return - Max flow value
+     * Using Relabel to front
+     * @return maximum flow from source to sink
      */
+
     public int preflowPush() {
         frontRelabel();
         maxflow = flow_excess[sink.getIndex()];
         return maxflow;
     }
 
+    /**
+     * Implemented front relabel for Pre-FLow Push algorithm
+     */
     private void frontRelabel() {
         initialize();
 
@@ -110,6 +114,11 @@ public class Flow {
             }
         }
     }
+
+    /**
+     * Implented method to discharge excess flow
+     * @param u
+     */
 
     private void discharge(Vertex u) {
         while(flow_excess[u.getIndex()] > 0) {
@@ -141,6 +150,12 @@ public class Flow {
         }
     }
 
+    /**
+     * Add method implemented pushes the excess flow out from vertex and make it 0
+     * @param e
+     * @param u
+     * @param v
+     */
     private void add(Edge e, Vertex u, Vertex v) {
         int delta = 0;
         if (e.fromVertex().equals(u)) {
@@ -158,7 +173,10 @@ public class Flow {
         flow_excess[u.getIndex()] = flow_excess[u.getIndex()] - delta;
     }
 
-
+    /**
+     * Relabel method implemented to change the height of the vertex
+     * @param u
+     */
     private void relabel(Vertex u) {
         int height_minimum = 3 * g_size;
         
@@ -183,7 +201,13 @@ public class Flow {
         node_height[u.getIndex()] = height_minimum;
     }
 
-
+    /**
+     * Flow Residual graph method returns if there is an edge which is reversed in residual graph
+     * as compared to original graph
+     * @param u
+     * @param e
+     * @return
+     */
     private boolean flow_ResidualGraph(Vertex u, Edge e) {
         if(e.fromVertex().equals(u))
             return flow(e) < capacity(e);
@@ -192,12 +216,18 @@ public class Flow {
     }
 
     
-    // flow going through edge e
+    /**
+     * flow going through edge e
+     *  */ 
     public int flow(Edge e) {
 	    return flow_max.containsKey(e) ? flow_max.get(e) : 0;
     }
 
-    // capacity of edge e
+    /**
+     * Capacity method to find the capacity of graph
+     * @param e
+     * @return
+     */
     public int capacity(Edge e) {
 	    return edge_capacity.containsKey(e) ? edge_capacity.get(e): 0;
     }
