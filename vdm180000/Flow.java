@@ -9,27 +9,26 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class Flow {
+    Graph g;
+    int g_size;
     Vertex src;
     Vertex sink;
     int flow_excess[];
     int node_height[];
-    int graph_size;
-    HashMap<Edge, Integer> edge_capacity;
     HashMap<Edge, Integer> flow_max;
-    Graph g;
-    List<Vertex> activeList;
-    
+    HashMap<Edge, Integer> edge_capacity;
+    List<Vertex> activeList;    
 
     public Flow(Graph g, Vertex s, Vertex t, HashMap<Edge, Integer> capacity) {
         this.g = g;
+        g_size = g.n;
         this.src = s;
         this.sink = t;
-        graph_size = g.n;
         this.edge_capacity = capacity;
         flow_max = new HashMap<>();
         activeList = new LinkedList<>();
-        flow_excess = new int[graph_size];
-        node_height = new int[graph_size];
+        flow_excess = new int[g_size];
+        node_height = new int[g_size];
     }
 
 
@@ -41,7 +40,7 @@ public class Flow {
             }
 
             for(Edge e : g.adj(u).outEdges) {
-                flow_max.put(e, 0);
+                flow_max.put(e, 0);  // init flow is 0
             }
 
             flow_excess[u.getIndex()] = 0;
@@ -49,14 +48,14 @@ public class Flow {
         }
 
         int src_idx = src.getIndex();
-        node_height[src_idx] = g.n;
-        for(Edge e : g.adj(src).outEdges) {
-            int curr_edge_capacity = capacity(e);
-            flow_max.put(e, curr_edge_capacity);
+        node_height[src_idx] = g_size;
+        for( Edge e : g.adj(src).outEdges ) {
+            int curr_capacity = capacity(e);
+            flow_max.put(e, curr_capacity);
 
             
-            flow_excess[src_idx] -= curr_edge_capacity;
-            flow_excess[e.otherEnd(src).getIndex()] += curr_edge_capacity;
+            flow_excess[src_idx] -= curr_capacity;
+            flow_excess[e.otherEnd(src).getIndex()] += curr_capacity;
         }
     }
 
@@ -68,6 +67,7 @@ public class Flow {
 
     private void frontRelabel() {
         initialize();
+
         boolean finished = false;
         Iterator<Vertex> vertex_itr;
 
@@ -78,11 +78,12 @@ public class Flow {
             while(vertex_itr.hasNext()) {
                 Vertex curr = vertex_itr.next();
 
-                if(flow_excess[curr.getIndex()] == 0)
+                if(flow_excess[curr.getIndex()] == 0) {
                     continue;
+                }
+
+                int height_old = node_height[curr.getIndex()];
                 discharge(curr);
-                
-                int height_old = node_height[curr.getIndex()];                
                 if(height_old != node_height[curr.getIndex()]) {
                     finished = false;
                     vertex_itr.remove();
@@ -96,51 +97,72 @@ public class Flow {
 
     private void discharge(Vertex u) {
         while(flow_excess[u.getIndex()] > 0) {
-        	List<Edge> in_edges = g.adj(u).inEdges; //reverse edges 
+            List<Edge> in_edges = g.adj(u).inEdges; //reverse edges
             for(Edge e : in_edges) {
                 Vertex v = e.fromVertex();
-                
                 if(flow_ResidualGraph(u, e) && node_height[u.getIndex()] == node_height[v.getIndex()]+1) {
-                    add(e, u, v);
+                	add(e, u, v);
                     
-                    if(flow_excess[u.getIndex()] == 0) //if(u.excess == 0) return
-                        return;                    
+                    if(flow_excess[u.getIndex()] == 0) {
+                        return;
+                    }
                 }
             }
             
-            List<Edge> out_edges = g.adj(u).outEdges; //forward edges
+        	List<Edge> out_edges = g.adj(u).outEdges; //forward edges
             for(Edge e : out_edges) {
                 Vertex v = e.otherEnd(u);
-                
                 if(flow_ResidualGraph(u, e) && node_height[u.getIndex()] == node_height[v.getIndex()] + 1) {
-                    add(e, u, v);
+                	add(e, u, v);
                     
-                    if(flow_excess[u.getIndex()] == 0) //if(u.excess == 0) return
-                        return;                    
+                    if(flow_excess[u.getIndex()] == 0) {
+                        return; 
+                    }
                 }
             }
             
-            relabel(u); // if more flow can't be push, relabel
+            relabel(u); // if push more flow not possible, relabel
         }
     }
 
 
     private void add(Edge e, Vertex u, Vertex v) {
         int delta = 0;
-        
-        if (!e.fromVertex().equals(u)) {
-        	delta = Math.min(flow_excess[u.getIndex()], flow(e));
-        	int t = flow(e) - delta;
-            flow_max.put(e, t);        	
-        }
-        else {
-            delta = Math.min(flow_excess[u.getIndex()], (capacity(e) - flow(e)));
-            int t = flow(e) + delta;
+        if (e.fromVertex().equals(u)) {
+        	delta = Math.min(flow_excess[u.getIndex()], (capacity(e) - flow(e)));
+        	int t = flow(e) + delta;
             flow_max.put(e, t);
         }
+        else {
+        	delta = Math.min(flow_excess[u.getIndex()], flow(e));
+        	int t = flow(e) - delta;
+            flow_max.put(e, t);
+        }
+        flow_excess[u.getIndex()] -= delta;
+        flow_excess[v.getIndex()] += delta;
+    }
+
+
+    private void relabel(Vertex u) {
+        int height_minimum = 3 * g_size;
         
-        flow_excess[v.getIndex()] = flow_excess[v.getIndex()] + delta;
-        flow_excess[u.getIndex()] = flow_excess[u.getIndex()] - delta;
+        //for all (u,v) in Gf u.height<= v.height
+        for(Edge e : g.adj(u).inEdges) {
+        	int v_index = e.fromVertex().getIndex();
+            int ht = node_height[v_index];
+            if (flow_ResidualGraph(u, e) && ht < height_minimum)
+            	height_minimum = ht;
+        }
+
+        for(Edge e: g.adj(u).outEdges) {
+        	int v_index = e.toVertex().getIndex();
+            int ht = node_height[v_index];
+            if (flow_ResidualGraph(u, e) && ht < height_minimum)
+            	height_minimum = ht;
+        }
+        
+        height_minimum += 1;
+        node_height[u.getIndex()] = height_minimum;
     }
 
 
@@ -149,31 +171,6 @@ public class Flow {
             return flow(e) < capacity(e);
         else
         	return flow(e) > 0;
-    }
-
-
-    private void relabel(Vertex u) {
-        int height_minimum = 3 * graph_size;
-        
-        //for all (u,v) in Graph flow u.height<= v.height
-        for(Edge v : g.adj(u).inEdges) {
-        	int v_index = v.fromVertex().getIndex();
-            int ht = node_height[v_index];
-            
-            if (flow_ResidualGraph(u, v) && ht < height_minimum)
-            	height_minimum = ht;
-        }
-        
-        for(Edge v: g.adj(u).outEdges) {
-        	int v_index = v.toVertex().getIndex();
-            int ht = node_height[v_index];
-            
-            if (flow_ResidualGraph(u, v) && ht < height_minimum)
-            	height_minimum = ht;            
-        }
-        
-        height_minimum = height_minimum + 1;
-        node_height[u.getIndex()] = height_minimum ;
     }
 
     
