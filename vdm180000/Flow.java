@@ -230,6 +230,15 @@ public class Flow {
        get the "T"-side of the min-cut found by the algorithm
     */
     public Set<Vertex> minCutT() {
-	    return null;
+        Set<Vertex> cutS = minCutS();
+        Set<Vertex> cutT = new HashSet<>();
+
+        for ( Vertex v : g) {
+            if ( !cutS.contains(v) ) {
+                cutT.add(v);
+            }
+        }
+
+        return cutT;
     }
 }
