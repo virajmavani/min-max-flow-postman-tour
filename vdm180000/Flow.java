@@ -16,7 +16,7 @@ public class Flow {
     HashMap<Edge, Integer> maxflow;
     HashMap<Edge, Integer> capacity;
     Graph g;
-    List<Vertex> listVertex;
+    List<Vertex> activeList;
     
 
     public Flow(Graph g, Vertex s, Vertex t, HashMap<Edge, Integer> capacity) {
@@ -25,7 +25,7 @@ public class Flow {
         this.sink = t;
         this.capacity = capacity;
         maxflow = new HashMap<>();
-        listVertex = new LinkedList<>();
+        activeList = new LinkedList<>();
         excessFlow = new int[g.n];
         height = new int[g.n];
     }
@@ -35,7 +35,7 @@ public class Flow {
         Vertex[] vertices = g.getVertexArray();
         for( Vertex u : vertices ) {
             if(!src.equals(u) && !sink.equals(u)) {
-                listVertex.add(u);
+                activeList.add(u);
             }
 
             for( Edge e : g.adj(u).outEdges ) {
@@ -73,7 +73,7 @@ public class Flow {
         while(!finished) {
             finished = true;
 
-            vertex_itr = listVertex.iterator();
+            vertex_itr = activeList.iterator();
             while(vertex_itr.hasNext()) {
                 Vertex curr = vertex_itr.next();
 
@@ -85,7 +85,7 @@ public class Flow {
                 if(oldHeight != height[curr.getIndex()]) {
                     finished = false;
                     vertex_itr.remove();
-                    listVertex.add(0, curr);
+                    activeList.add(0, curr);
                     break;
                 }
             }
