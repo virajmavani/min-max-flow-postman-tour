@@ -3,10 +3,12 @@ package vdm180000;
 
 import vdm180000.Graph.*;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 public class Flow {
     Graph g;
@@ -15,10 +17,18 @@ public class Flow {
     Vertex sink;
     int flow_excess[];
     int node_height[];
+    int maxflow = 0;
     HashMap<Edge, Integer> flow_max;
     HashMap<Edge, Integer> edge_capacity;
     List<Vertex> activeList;    
 
+    /**
+     * Class constructor for initializing class attributes
+     * @param g - Graph
+     * @param s - Source node
+     * @param t - Sink node
+     * @param capacity
+     */
     public Flow(Graph g, Vertex s, Vertex t, HashMap<Edge, Integer> capacity) {
         this.g = g;
         g_size = g.n;
@@ -32,6 +42,9 @@ public class Flow {
     }
 
 
+    /**
+     * Method for initializing attributes of the object
+     */
     private void initialize() {
         Vertex[] vertices = g.getVertexArray();
         for( Vertex u : vertices ) {
@@ -59,10 +72,14 @@ public class Flow {
         }
     }
 
-
+    /**
+     * Implementation of preflowPush algorithm for computing max-flow possible in a graph
+     * @return - Max flow value
+     */
     public int preflowPush() {
-    	frontRelabel();
-        return flow_excess[sink.getIndex()];
+        frontRelabel();
+        maxflow = flow_excess[sink.getIndex()];
+        return maxflow;
     }
 
     private void frontRelabel() {
@@ -94,7 +111,6 @@ public class Flow {
         }
     }
 
-
     private void discharge(Vertex u) {
         while(flow_excess[u.getIndex()] > 0) {
             List<Edge> in_edges = g.adj(u).inEdges; //reverse edges
@@ -124,7 +140,6 @@ public class Flow {
             relabel(u); // if push more flow not possible, relabel
         }
     }
-
 
     private void add(Edge e, Vertex u, Vertex v) {
         int delta = 0;
@@ -191,7 +206,24 @@ public class Flow {
        get the "S"-side of the min-cut found by the algorithm
     */
     public Set<Vertex> minCutS() {
-	    return null;
+        Set<Vertex> cut = new HashSet<>();
+        
+        Queue<Vertex> queue = new LinkedList<Vertex>();
+
+        queue.add(src);
+
+        while ( !queue.isEmpty() ) {
+            Vertex node = queue.poll();
+            cut.add(node);
+            for ( Edge e : g.adj(node).outEdges ) {
+                if ( flow_max.get(e) < edge_capacity.get(e) ) {
+                    Vertex v = e.otherEnd(node);
+                    queue.add(v);
+                }
+            } 
+        }
+        
+        return cut;
     }
 
     /* After maxflow has been computed, this method can be called to
