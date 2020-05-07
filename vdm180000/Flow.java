@@ -51,7 +51,7 @@ public class Flow {
         int src_idx = src.getIndex();
         node_height[src_idx] = g.n;
         for(Edge e : g.adj(src).outEdges) {
-            int curr_edge_capacity = edge_capacity(e);
+            int curr_edge_capacity = capacity(e);
             flow_max.put(e, curr_edge_capacity);
 
             
@@ -134,7 +134,7 @@ public class Flow {
             flow_max.put(e, t);        	
         }
         else {
-            delta = Math.min(flow_excess[u.getIndex()], (edge_capacity(e) - flow(e)));
+            delta = Math.min(flow_excess[u.getIndex()], (capacity(e) - flow(e)));
             int t = flow(e) + delta;
             flow_max.put(e, t);
         }
@@ -146,7 +146,7 @@ public class Flow {
 
     private boolean flow_ResidualGraph(Vertex u, Edge e) {
         if(e.fromVertex().equals(u))
-            return flow(e) < edge_capacity(e);
+            return flow(e) < capacity(e);
         else
         	return flow(e) > 0;
     }
@@ -183,7 +183,7 @@ public class Flow {
     }
 
     // capacity of edge e
-    public int edge_capacity(Edge e) {
+    public int capacity(Edge e) {
 	    return edge_capacity.containsKey(e) ? edge_capacity.get(e): 0;
     }
 
