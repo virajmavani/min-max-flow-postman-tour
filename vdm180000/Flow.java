@@ -148,14 +148,16 @@ public class Flow {
         int height_minimum = 3 * g_size;
         
         //for all (u,v) in Gf u.height<= v.height
-        for(Edge e : g.adj(u).inEdges) {
+        List<Edge> in_edges = g.adj(u).inEdges;
+        for(Edge e : in_edges) {
         	int v_index = e.fromVertex().getIndex();
             int ht = node_height[v_index];
             if (flow_ResidualGraph(u, e) && ht < height_minimum)
             	height_minimum = ht;
         }
-
-        for(Edge e: g.adj(u).outEdges) {
+        
+        List<Edge> out_edges = g.adj(u).outEdges;
+        for(Edge e: out_edges) {
         	int v_index = e.toVertex().getIndex();
             int ht = node_height[v_index];
             if (flow_ResidualGraph(u, e) && ht < height_minimum)
