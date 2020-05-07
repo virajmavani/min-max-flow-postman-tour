@@ -138,8 +138,9 @@ public class Flow {
         	int t = flow(e) - delta;
             flow_max.put(e, t);
         }
-        flow_excess[u.getIndex()] -= delta;
-        flow_excess[v.getIndex()] += delta;
+        
+        flow_excess[v.getIndex()] = flow_excess[v.getIndex()] + delta;
+        flow_excess[u.getIndex()] = flow_excess[u.getIndex()] - delta;
     }
 
 
