@@ -1,6 +1,8 @@
 // Driver for Postman Tour
 package vdm180000;
-import idsa.Graph.*;
+
+import vdm180000.Graph.*;
+import vdm180000.Graph.Edge;
 
 import java.util.List;
 import java.util.Scanner;
@@ -14,11 +16,11 @@ public class PostmanDriver {
 	Graph g = Graph.readDirectedGraph(in);
 	if(args.length > 0) { VERBOSE = Integer.parseInt(args[0]); }
 	
-	Timer timer = new Timer();
+	// Timer timer = new Timer();
 	Postman p = new Postman(g);
 	long result = p.postmanTour();
 	System.out.println(result);
-	System.out.println(timer.end());
+	// System.out.println(timer.end());
 	if(VERBOSE > 0) {
 	    List<Edge> tour = p.getTour();
 	    if(tour != null) {

@@ -1,7 +1,7 @@
 
 // Test driver for mincost flow
 package vdm180000;
-import idsa.Graph.*;
+import vdm180000.Graph.*;
 import Timer;
 
 import java.util.HashMap;
@@ -35,7 +35,7 @@ public class MinCostFlowDriver {
 	Vertex target = g.getVertex(t);
 
 	for(Vertex u: g) {
-	    for(Edge e: u) {
+	    for( Edge e: g.adj(u).outEdges ) {
 		capacity.put(e, arr[e.getName()]);
 		cost.put(e, e.getWeight());
 	    }
@@ -52,7 +52,7 @@ public class MinCostFlowDriver {
 	if(VERBOSE > 0) {
 	    for(Vertex u: g) {
 		System.out.print(u + " : ");
-		for(Edge e: u) {
+		for( Edge e: g.adj(u).outEdges ) {
 		    if(mcf.flow(e) != 0) { System.out.print(e + ":" + mcf.flow(e) + "/" + mcf.capacity(e) + "@" + mcf.cost(e) + "| "); }
 		}
 		System.out.println();

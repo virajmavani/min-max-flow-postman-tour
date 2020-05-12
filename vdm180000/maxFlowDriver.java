@@ -43,7 +43,7 @@ public class maxFlowDriver {
 	if(VERBOSE > 0) {
 	    for(Vertex u: g) {
 		System.out.print(u + " : ");
-		for(Edge e: u) {
+		for(Edge e: g.outEdges(u)) {
 		    System.out.print(e + ":" + f.flow(e) + "/" + f.capacity(e) + " | ");
 		}
 		System.out.println();
