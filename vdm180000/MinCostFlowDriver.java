@@ -1,21 +1,24 @@
-
-// Test driver for mincost flow
 package vdm180000;
-import vdm180000.Graph.*;
-import Timer;
 
-import java.util.HashMap;
-import java.util.Scanner;
+import vdm180000.Graph;
+import vdm180000.Graph.Edge;
+import vdm180000.Graph.Vertex;
+
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.HashMap;
+import java.util.Scanner;
 
-
-public class MinCostFlowDriver {
-    static int VERBOSE = 0;
-    public static void main(String[] args) throws Exception {
-	Scanner in = new Scanner(System.in);
+public class driver {
+	public static void main(String[] args) throws FileNotFoundException {
+	int VERBOSE = 1;
+	Scanner in;
+	if (args.length > 0) {
+		in = new Scanner(new File(args[0]));
+	}
+	else
+		in = new Scanner("");
 	
-	if(args.length > 0) { VERBOSE = Integer.parseInt(args[0]); }
 	Graph g = Graph.readDirectedGraph(in);
 	int s = in.nextInt();
 	int t = in.nextInt();
@@ -35,7 +38,7 @@ public class MinCostFlowDriver {
 	Vertex target = g.getVertex(t);
 
 	for(Vertex u: g) {
-	    for( Edge e: g.adj(u).outEdges ) {
+	    for(Edge e: g.outEdges(u)) {
 		capacity.put(e, arr[e.getName()]);
 		cost.put(e, e.getWeight());
 	    }
@@ -45,14 +48,14 @@ public class MinCostFlowDriver {
 	Timer timer = new Timer();
 	MinCostFlow mcf = new MinCostFlow(g, src, target, capacity, cost);
 	
-	int result = mcf.costScalingMinCostFlow(d);
+	int result = mcf.costScalingMinCostFlow(0);
 	
 	System.out.println(result);
 
 	if(VERBOSE > 0) {
 	    for(Vertex u: g) {
 		System.out.print(u + " : ");
-		for( Edge e: g.adj(u).outEdges ) {
+		for(Edge e: g.outEdges(u)) {
 		    if(mcf.flow(e) != 0) { System.out.print(e + ":" + mcf.flow(e) + "/" + mcf.capacity(e) + "@" + mcf.cost(e) + "| "); }
 		}
 		System.out.println();
@@ -60,5 +63,5 @@ public class MinCostFlowDriver {
 	}
 
 	System.out.println(timer.end());
-    }
+	}
 }
