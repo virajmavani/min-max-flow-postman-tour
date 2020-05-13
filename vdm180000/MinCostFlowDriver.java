@@ -9,9 +9,9 @@ import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Scanner;
 
-public class driver {
+public class MinCostFlowDriver {
 	public static void main(String[] args) throws FileNotFoundException {
-	int VERBOSE = 1;
+	int VERBOSE = 0;
 	Scanner in;
 	if (args.length > 0) {
 		in = new Scanner(new File(args[0]));
@@ -19,6 +19,9 @@ public class driver {
 	else
 		in = new Scanner("");
 	
+	if (args.length > 1) {
+		VERBOSE = 1;
+	}
 	Graph g = Graph.readDirectedGraph(in);
 	int s = in.nextInt();
 	int t = in.nextInt();
@@ -45,7 +48,7 @@ public class driver {
 	}
 
 
-	Timer timer = new Timer();
+	// Timer timer = new Timer();
 	MinCostFlow mcf = new MinCostFlow(g, src, target, capacity, cost);
 	
 	int result = mcf.costScalingMinCostFlow(0);
@@ -62,6 +65,6 @@ public class driver {
 	    }
 	}
 
-	System.out.println(timer.end());
+	// System.out.println(timer.end());
 	}
 }
